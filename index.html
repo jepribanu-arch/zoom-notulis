@@ -88,7 +88,7 @@
       <ol class="guide">
         <li>Buka aplikasi ini di <b>Google Chrome</b> atau <b>Microsoft Edge</b> di laptop Windows.</li>
         <li>Tekan <b>Mulai LIVE</b> atau <b>Rekam</b> → muncul jendela "Pilih yang ingin dibagikan".</li>
-        <li><b>Zoom aplikasi laptop:</b> pilih tab <b>Seluruh layar</b> → nyalakan <b>"Bagikan juga audio sistem"</b> → Bagikan.</li>
+        <li><b>Zoom aplikasi laptop:</b> pilih tab <b>Seluruh layar (Entire screen)</b> — <u>jangan</u> tab "Jendela/Window" karena tidak membawa audio → nyalakan sakelar <b>"Bagikan juga audio sistem"</b> di kiri bawah → Bagikan.</li>
         <li><b>Zoom di browser:</b> pilih tab <b>Tab Chrome</b> → pilih tab Zoom → nyalakan <b>"Bagikan juga audio tab"</b> → Bagikan.</li>
         <li>Video layar <b>tidak direkam</b> — hanya audionya yang dipakai. Bila muncul bilah "sedang berbagi", biarkan; menutupnya = rekaman berhenti.</li>
         <li>Pakai <b>headset</b> bila memilih "Zoom + suara saya" agar suara tidak dobel/bergema.</li>
@@ -211,10 +211,11 @@ async function openSource(mode,ac){
   const cleanup=[];let display=null,mic=null;
   try{
     if(mode!=='mic'){
-      display=await navigator.mediaDevices.getDisplayMedia({video:true,
-        audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},systemAudio:'include',selfBrowserSurface:'exclude',surfaceSwitching:'include'});
+      display=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'monitor'},
+        audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,suppressLocalAudioPlayback:false},
+        systemAudio:'include',windowAudio:'system',monitorTypeSurfaces:'include',selfBrowserSurface:'exclude',surfaceSwitching:'include'});
       cleanup.push(()=>display.getTracks().forEach(t=>t.stop()));
-      if(!display.getAudioTracks().length)throw new Error('Audio tidak ikut dibagikan. Ulangi, lalu NYALAKAN pilihan "Bagikan juga audio sistem/tab" di jendela berbagi.');
+      if(!display.getAudioTracks().length)throw new Error('Audio tidak ikut dibagikan.\n\nUlangi dan di jendela berbagi:\n• Zoom aplikasi laptop → pilih tab "SELURUH LAYAR / Entire screen" (BUKAN "Jendela/Window"), lalu NYALAKAN sakelar "Bagikan juga audio sistem" di kiri bawah.\n• Zoom di browser → pilih tab "TAB CHROME", klik tab Zoom, lalu NYALAKAN "Bagikan juga audio tab".\n\nPilihan "Jendela/Window" tidak menyediakan audio.');
       display.getVideoTracks().forEach(t=>{try{t.contentHint='detail';}catch(e){}});
     }
     if(mode!=='sys'){
